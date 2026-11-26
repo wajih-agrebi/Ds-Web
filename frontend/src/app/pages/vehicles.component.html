@@ -1,0 +1,22 @@
+<div class="page-title"><div><div class="eyebrow">Fleet management</div><h1>Vehicle catalogue</h1><p>Browse, filter and maintain your agency vehicles.</p></div><a class="btn btn-primary" routerLink="/vehicules/new">＋ Add vehicle</a></div>
+<div class="toolbar">
+  <label class="field input-sm">Category<select [(ngModel)]="category" (ngModelChange)="load()"><option value="">All categories</option><option>ECONOMIQUE</option><option>COMPACTE</option><option>BERLINE</option><option>SUV</option><option>UTILITAIRE</option><option>AUTRE</option></select></label>
+  <label class="field input-sm">Fuel type<select [(ngModel)]="fuel" (ngModelChange)="load()"><option value="">All fuels</option><option>ESSENCE</option><option>DIESEL</option><option>HYBRIDE</option><option>ELECTRIQUE</option></select></label>
+  <label class="field input-sm">Status<select [(ngModel)]="status" (ngModelChange)="load()"><option value="">All statuses</option><option>DISPONIBLE</option><option>LOUE</option><option>MAINTENANCE</option></select></label>
+  <label class="field input-sm">Maximum daily price<input type="number" min="1" placeholder="Any price" [(ngModel)]="maxPrice" (change)="load()"></label>
+  <label class="field input-sm">Sort by<select [(ngModel)]="sort"><option value="make">Make and model</option><option value="price">Daily price</option></select></label>
+</div>
+<div *ngIf="loading" class="panel loading">Loading vehicles…</div><div *ngIf="error" class="error list-error"><span>{{ error }}</span><button class="btn btn-quiet" type="button" (click)="load()">Retry</button></div>
+<div class="vehicle-grid" *ngIf="!loading && !error">
+  <article class="panel vehicle-card" *ngFor="let v of shown">
+    <div class="vehicle-image" *ngIf="showImage(v)"><img [src]="imageFor(v)" [alt]="v.marque + ' ' + v.modele" loading="lazy" (error)="imageFailed(v.id)"><span class="badge" [ngClass]="'badge-' + v.statut">{{ v.statut }}</span></div>
+    <div class="vehicle-image vehicle-art" *ngIf="!showImage(v)"><span class="badge" [ngClass]="'badge-' + v.statut">{{ v.statut }}</span><small>DRIVEEASY FLEET</small><strong>🚘</strong></div>
+    <div class="vehicle-card-body"><div class="vehicle-heading"><div><h2>{{ v.marque }} {{ v.modele }}</h2><span>{{ v.annee }} · {{ v.couleur }}</span></div><a class="btn btn-quiet" [routerLink]="['/vehicules', v.id, 'edit']">Edit</a></div>
+      <div class="vehicle-meta"><span>{{ v.categorie }}</span><span>{{ v.carburant }}</span><span>{{ v.boite }}</span><span>{{ v.nbPlaces }} seats</span></div>
+      <div class="vehicle-price"><strong>{{ v.prixJournalier | number:'1.0-0' }} <small>TND</small></strong><span>per day · {{ v.kilometrage | number }} km</span></div>
+      <div class="registration">Registration <b>{{ v.immatriculation }}</b></div>
+    </div>
+  </article>
+</div>
+<div class="panel empty" *ngIf="!loading && !error && !vehicles.length">No vehicles match these filters. Try a wider search or add a vehicle.</div>
+<div class="pager" *ngIf="!loading && vehicles.length"><span>{{ vehicles.length }} vehicles · page {{ page + 1 }} of {{ pages }}</span><div><button class="btn btn-quiet" [disabled]="page === 0" (click)="page = page - 1">Previous</button><button class="btn btn-quiet" [disabled]="page + 1 >= pages" (click)="page = page + 1">Next</button></div></div>

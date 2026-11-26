@@ -1,0 +1,52 @@
+<div class="page-title">
+  <div>
+    <div class="eyebrow">Customer relationships</div>
+    <h1>Client profile</h1>
+    <p>Eligibility and rental history.</p>
+  </div>
+  <div class="row-actions">
+    <a class="btn btn-quiet" routerLink="/clients">← Back to clients</a>
+    <a class="btn btn-primary" *ngIf="client as c" [routerLink]="['/clients', c.id, 'edit']">Edit client</a>
+  </div>
+</div>
+
+<div *ngIf="clientLoading && !client" class="panel loading">Loading client details…</div>
+<div *ngIf="clientError" class="error list-error" role="alert"><span>{{ clientError }}</span><button class="btn btn-quiet" type="button" (click)="loadClient()">Retry</button></div>
+
+<ng-container *ngIf="client as c">
+  <div class="grid-2">
+    <section class="panel profile-card">
+      <div class="profile-avatar">{{ c.prenom.charAt(0) }}{{ c.nom.charAt(0) }}</div>
+      <div><div class="eyebrow">{{ c.categorieClient }} member</div><h2>{{ c.prenom }} {{ c.nom }}</h2><p class="muted">Client since {{ c.dateInscription | date:'longDate' }}</p></div>
+      <div class="profile-lines">
+        <div><small>CIN</small><b>{{ c.cin }}</b></div><div><small>Email</small><b>{{ c.email }}</b></div>
+        <div><small>Phone</small><b>{{ c.telephone }}</b></div><div><small>Address</small><b>{{ c.adresse }}</b></div>
+        <div><small>Licence</small><b>{{ c.numeroPermis }}</b></div><div><small>Expires</small><b>{{ c.dateExpirationPermis | date:'mediumDate' }}</b></div>
+      </div>
+    </section>
+
+    <section class="panel eligibility-card">
+      <div class="eyebrow">Rental eligibility</div>
+      <div *ngIf="eligibilityLoading" class="client-detail-status">Checking eligibility…</div>
+      <div *ngIf="eligibilityError" class="client-detail-error" role="alert">{{ eligibilityError }} <button class="btn btn-quiet" type="button" (click)="loadEligibility()">Retry</button></div>
+      <ng-container *ngIf="eligibility as result">
+        <div class="eligibility-status" [class.ineligible]="!result.eligible">{{ result.eligible ? 'Eligible to rent' : 'Not eligible' }}</div>
+        <p>{{ result.message }}</p>
+        <div class="eligibility-facts"><span>Age <b>{{ result.age }} years</b></span><span>Licence <b>{{ result.permisValide ? 'Valid' : 'Expired' }}</b></span></div>
+        <a class="btn btn-primary" *ngIf="result.eligible" routerLink="/locations/new">Start a rental →</a>
+      </ng-container>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2>Rental history</h2><span class="muted">{{ history?.totalElements || 0 }} records</span></div>
+    <div *ngIf="historyLoading" class="client-detail-status">Loading rental history…</div>
+    <div *ngIf="historyError" class="client-detail-error" role="alert">{{ historyError }} <button class="btn btn-quiet" type="button" (click)="loadHistory()">Retry</button></div>
+    <div class="table-wrap" *ngIf="history">
+      <table class="data-table"><thead><tr><th>Rental</th><th>Vehicle</th><th>Period</th><th>Status</th><th>Total</th></tr></thead>
+        <tbody><tr *ngFor="let r of history.content"><td>#{{ r.id }}</td><td>{{ vehicleNameFor(r.vehiculeId) }}<div class="muted" *ngIf="vehiclesById.get(r.vehiculeId) as vehicle">{{ vehicle.immatriculation }}</div></td><td>{{ r.dateDebut | date:'mediumDate' }} – {{ r.dateFinPrevue | date:'mediumDate' }}</td><td><span class="badge" [ngClass]="'badge-' + r.statut">{{ r.statut }}</span></td><td>{{ r.montantTotal | number:'1.2-2' }} TND</td></tr></tbody>
+      </table>
+      <div class="empty" *ngIf="!history.content.length">No rental history for this client yet.</div>
+    </div>
+  </section>
+</ng-container>

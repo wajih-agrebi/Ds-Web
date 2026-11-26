@@ -1,0 +1,57 @@
+<div class="page-title">
+  <div>
+    <div class="eyebrow">Customer relationships</div>
+    <h1>{{ id ? 'Edit client' : 'Add a client' }}</h1>
+    <p>{{ id ? 'Update the client’s identity and driving licence details.' : 'Enter the client’s identity and driving licence details.' }}</p>
+  </div>
+  <a class="btn btn-quiet" routerLink="/clients">← Back to clients</a>
+</div>
+
+<div *ngIf="loading" class="panel loading">Loading client details…</div>
+<div *ngIf="error" class="error list-error" role="alert"><span>{{ error }}</span><button *ngIf="id && !loadedClient" class="btn btn-quiet" type="button" (click)="loadClient()">Retry</button></div>
+
+<form class="panel form-card" [formGroup]="form" (ngSubmit)="save()" novalidate *ngIf="!loading && (!id || loadedClient)">
+  <div class="form-grid">
+    <label class="field">CIN
+      <input formControlName="cin" autocomplete="off" placeholder="National identity number">
+      <small class="field-error" *ngIf="form.controls.cin.touched && form.controls.cin.invalid">CIN is required.</small>
+    </label>
+    <label class="field">First name
+      <input formControlName="prenom" autocomplete="given-name">
+      <small class="field-error" *ngIf="form.controls.prenom.touched && form.controls.prenom.invalid">First name is required.</small>
+    </label>
+    <label class="field">Last name
+      <input formControlName="nom" autocomplete="family-name">
+      <small class="field-error" *ngIf="form.controls.nom.touched && form.controls.nom.invalid">Last name is required.</small>
+    </label>
+    <label class="field">Date of birth
+      <input type="date" formControlName="dateNaissance" autocomplete="bday">
+      <small class="field-error" *ngIf="form.controls.dateNaissance.touched && form.controls.dateNaissance.invalid">Date of birth is required.</small>
+    </label>
+    <label class="field">Email
+      <input type="email" formControlName="email" autocomplete="email">
+      <small class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">Enter a valid email address.</small>
+    </label>
+    <label class="field">Phone
+      <input type="tel" formControlName="telephone" autocomplete="tel">
+      <small class="field-error" *ngIf="form.controls.telephone.touched && form.controls.telephone.invalid">Phone number is required.</small>
+    </label>
+    <label class="field field-wide">Address
+      <input formControlName="adresse" autocomplete="street-address">
+      <small class="field-error" *ngIf="form.controls.adresse.touched && form.controls.adresse.invalid">Address is required.</small>
+    </label>
+    <label class="field">Driving licence number
+      <input formControlName="numeroPermis" autocomplete="off">
+      <small class="field-error" *ngIf="form.controls.numeroPermis.touched && form.controls.numeroPermis.invalid">Licence number is required.</small>
+    </label>
+    <label class="field">Licence expiry date
+      <input type="date" formControlName="dateExpirationPermis">
+      <small class="field-error" *ngIf="form.controls.dateExpirationPermis.touched && form.controls.dateExpirationPermis.invalid">Licence expiry date is required.</small>
+    </label>
+  </div>
+  <p class="muted form-note">CIN, email, and driving licence number must be unique. The client's eligibility is checked when a rental is created.</p>
+  <div class="form-actions">
+    <a class="btn btn-quiet" routerLink="/clients">Cancel</a>
+    <button class="btn btn-primary" type="submit" [disabled]="saving || form.invalid">{{ saving ? 'Saving…' : id ? 'Save changes' : 'Save client' }}</button>
+  </div>
+</form>

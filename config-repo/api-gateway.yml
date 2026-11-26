@@ -1,0 +1,35 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: vehicule-service
+              uri: lb://vehicule-service
+              predicates:
+                - Path=/api/vehicules/**
+              filters:
+                - StripPrefix=1
+            - id: client-service
+              uri: lb://client-service
+              predicates:
+                - Path=/api/clients/**
+              filters:
+                - StripPrefix=1
+            - id: location-service
+              uri: lb://location-service
+              predicates:
+                - Path=/api/locations/**
+              filters:
+                - StripPrefix=1
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: http://localhost:4200
+                allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+                allowedHeaders: '*'

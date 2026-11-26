@@ -1,0 +1,17 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/dashboard"><span class="brand-mark">D</span><span>drive<span class="brand-light">easy</span><small>RENTAL OPERATIONS</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <nav>
+      <a routerLink="/dashboard" routerLinkActive="active"><span>◫</span> Overview</a>
+      <a routerLink="/vehicules" routerLinkActive="active"><span>▣</span> Vehicles</a>
+      <a routerLink="/clients" routerLinkActive="active"><span>♙</span> Clients</a>
+      <a routerLink="/locations" routerLinkActive="active"><span>↗</span> Rentals</a>
+    </nav>
+    <div class="side-bottom"><div class="online-dot"></div><span>Agency system online</span><small>DriveEasy · Tunisia</small></div>
+  </aside>
+  <main class="main-area">
+    <header class="topbar"><div class="crumb">DriveEasy <span>/</span> Agency workspace</div><div class="top-actions"><span class="today">{{ today }}</span><div class="avatar">A</div><span class="agent">Agency staff<small>Administrator</small></span></div></header>
+    <section class="page-wrap"><router-outlet /></section>
+  </main>
+</div>

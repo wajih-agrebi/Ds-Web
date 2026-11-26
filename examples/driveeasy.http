@@ -1,0 +1,70 @@
+@gateway = http://localhost:8080/api
+
+### Vehicle catalogue
+GET {{gateway}}/vehicules
+
+### Available vehicles for a future period
+GET {{gateway}}/vehicules/disponibles?dateDebut=2026-12-01&dateFin=2026-12-04
+
+### Create a vehicle
+POST {{gateway}}/vehicules
+Content-Type: application/json
+
+{
+  "immatriculation": "456TU7890",
+  "marque": "Kia",
+  "modele": "Rio",
+  "categorie": "COMPACTE",
+  "annee": 2022,
+  "couleur": "Red",
+  "carburant": "ESSENCE",
+  "boite": "MANUELLE",
+  "nbPlaces": 5,
+  "kilometrage": 30000,
+  "prixJournalier": 88.5,
+  "statut": "DISPONIBLE",
+  "imageUrl": null
+}
+
+### Search clients
+GET {{gateway}}/clients?nom=Amira
+
+### Check eligibility (client 1 is a demonstration client)
+GET {{gateway}}/clients/1/eligibilite
+
+### Simulate price: client 1, vehicle 1, three days
+POST {{gateway}}/locations/simulation
+Content-Type: application/json
+
+{
+  "clientId": 1,
+  "vehiculeId": 1,
+  "dateDebut": "2026-12-01",
+  "dateFinPrevue": "2026-12-04"
+}
+
+### Reserve after checking the simulation
+POST {{gateway}}/locations
+Content-Type: application/json
+
+{
+  "clientId": 1,
+  "vehiculeId": 1,
+  "dateDebut": "2026-12-01",
+  "dateFinPrevue": "2026-12-04"
+}
+
+### Start a rental (replace 1 with the reservation ID)
+PATCH {{gateway}}/locations/1/depart
+Content-Type: application/json
+
+{ "kmDepart": 20000 }
+
+### Return a rental (replace 1 with the rental ID)
+PATCH {{gateway}}/locations/1/retour
+Content-Type: application/json
+
+{ "kmRetour": 20450 }
+
+### Statistics
+GET {{gateway}}/locations/statistiques

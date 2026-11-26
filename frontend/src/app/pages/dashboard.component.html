@@ -1,0 +1,118 @@
+<section class="page-title dashboard-heading">
+  <div>
+    <span class="eyebrow">AGENCY OVERVIEW</span>
+    <h1>Good morning, team</h1>
+    <p>Fleet performance, rental activity and revenue at a glance.</p>
+  </div>
+  <div class="dashboard-actions">
+    <span class="dashboard-updated" *ngIf="lastUpdated">Updated {{ lastUpdated | date:'shortTime' }}</span>
+    <button class="btn btn-primary" type="button" (click)="loadDashboard()" [disabled]="loading">
+      {{ loading ? 'Refreshing…' : '↻ Refresh' }}
+    </button>
+  </div>
+</section>
+
+<div class="notice dashboard-error" *ngIf="error">
+  <span>{{ error }}</span>
+  <button class="btn" type="button" (click)="loadDashboard()" [disabled]="loading">Retry</button>
+</div>
+
+<div class="dashboard-loading card" *ngIf="loading && !vehicles && !rentals && !stats">
+  Loading dashboard data…
+</div>
+
+<section class="dashboard-kpis" aria-label="Key performance indicators">
+  <article class="card dashboard-kpi">
+    <span class="dashboard-kpi-label">Fleet size</span>
+    <strong>{{ vehicles?.length ?? '—' }}</strong>
+    <small>{{ available }} available · {{ maintenance }} in maintenance</small>
+  </article>
+  <article class="card dashboard-kpi">
+    <span class="dashboard-kpi-label">Vehicles available</span>
+    <strong>{{ vehicles ? available : '—' }}</strong>
+    <small>{{ rented }} currently rented</small>
+  </article>
+  <article class="card dashboard-kpi">
+    <span class="dashboard-kpi-label">Active rentals</span>
+    <strong>{{ countActive() ?? '—' }}</strong>
+    <small>{{ rentals ? (rentals.totalElements + ' total rentals') : 'Rental data unavailable' }}</small>
+  </article>
+  <article class="card dashboard-kpi">
+    <span class="dashboard-kpi-label">Revenue this month</span>
+    <strong>{{ stats ? (stats.chiffreAffairesMois | number:'1.0-2') : '—' }} <small *ngIf="stats">TND</small></strong>
+    <small>Current month</small>
+  </article>
+  <article class="card dashboard-kpi">
+    <span class="dashboard-kpi-label">Total revenue</span>
+    <strong>{{ stats ? (stats.chiffreAffairesTotal | number:'1.0-2') : '—' }} <small *ngIf="stats">TND</small></strong>
+    <small>Recorded rental revenue</small>
+  </article>
+  <article class="card dashboard-kpi">
+    <span class="dashboard-kpi-label">Fleet occupancy</span>
+    <strong>{{ stats ? (stats.tauxOccupation | number:'1.0-1') + '%' : '—' }}</strong>
+    <small>Occupancy rate reported by rental service</small>
+  </article>
+</section>
+
+<section class="dashboard-panels">
+  <article class="card dashboard-panel">
+    <header class="dashboard-panel-head"><div><span class="eyebrow">FLEET</span><h2>Vehicle status</h2></div><span>{{ vehicles?.length ?? '—' }} vehicles</span></header>
+    <div class="dashboard-panel-body" *ngIf="vehicles; else fleetUnavailable">
+      <div class="dashboard-bar-row"><div class="dashboard-bar-label"><span>Available</span><b>{{ available }}</b></div><div class="dashboard-track"><i class="dashboard-fill fill-green" [style.width.%]="vehicles.length ? available / vehicles.length * 100 : 0"></i></div></div>
+      <div class="dashboard-bar-row"><div class="dashboard-bar-label"><span>On rental</span><b>{{ rented }}</b></div><div class="dashboard-track"><i class="dashboard-fill fill-blue" [style.width.%]="vehicles.length ? rented / vehicles.length * 100 : 0"></i></div></div>
+      <div class="dashboard-bar-row"><div class="dashboard-bar-label"><span>Maintenance</span><b>{{ maintenance }}</b></div><div class="dashboard-track"><i class="dashboard-fill fill-orange" [style.width.%]="vehicles.length ? maintenance / vehicles.length * 100 : 0"></i></div></div>
+    </div>
+    <ng-template #fleetUnavailable><div class="dashboard-empty">Fleet data is unavailable. Check the vehicle service.</div></ng-template>
+  </article>
+
+  <article class="card dashboard-panel">
+    <header class="dashboard-panel-head"><div><span class="eyebrow">RENTAL ACTIVITY</span><h2>Rental status</h2></div></header>
+    <div class="dashboard-panel-body" *ngIf="rentalCounts; else rentalCountsUnavailable">
+      <div class="dashboard-status-list">
+        <div class="dashboard-status-row" *ngFor="let row of rentalStatusRows">
+          <span class="badge" [ngClass]="'badge-' + row.status">{{ row.label }}</span>
+          <div class="dashboard-track"><i class="dashboard-fill fill-green" [style.width.%]="row.percent"></i></div>
+          <b>{{ row.count ?? '—' }}</b>
+        </div>
+      </div>
+      <small class="dashboard-footnote">Counts are retrieved from the rental service.</small>
+    </div>
+    <ng-template #rentalCountsUnavailable><div class="dashboard-empty">Rental status counts are unavailable.</div></ng-template>
+  </article>
+
+  <article class="card dashboard-panel">
+    <header class="dashboard-panel-head"><div><span class="eyebrow">FLEET MIX</span><h2>Vehicles by category</h2></div></header>
+    <div class="dashboard-panel-body" *ngIf="vehicles?.length; else categoriesEmpty">
+      <div class="dashboard-category-row" *ngFor="let row of categoryRows">
+        <span>{{ row.category | lowercase }}</span><div class="dashboard-track"><i class="dashboard-fill fill-blue" [style.width.%]="row.percent"></i></div><b>{{ row.count }}</b>
+      </div>
+    </div>
+    <ng-template #categoriesEmpty><div class="dashboard-empty">{{ vehicles ? 'No vehicles have been added yet.' : 'Category data is unavailable.' }}</div></ng-template>
+  </article>
+
+  <article class="card dashboard-panel">
+    <header class="dashboard-panel-head"><div><span class="eyebrow">POPULARITY</span><h2>Most rented vehicles</h2></div></header>
+    <div class="dashboard-panel-body" *ngIf="stats; else popularUnavailable">
+      <div class="dashboard-popular-row" *ngFor="let row of popularVehicles; let i = index">
+        <span class="dashboard-rank">{{ i + 1 }}</span><div class="dashboard-popular-name"><b>{{ row.name }}</b><small>{{ row.registration || 'Registration unavailable' }}</small></div><span class="dashboard-rental-count">{{ row.count }} rentals</span>
+      </div>
+      <div class="dashboard-empty" *ngIf="!popularVehicles.length">No rental popularity data yet.</div>
+    </div>
+    <ng-template #popularUnavailable><div class="dashboard-empty">Statistics are unavailable. Check the rental service.</div></ng-template>
+  </article>
+</section>
+
+<section class="card dashboard-recent">
+  <header class="dashboard-panel-head"><div><span class="eyebrow">LATEST ACTIVITY</span><h2>Recent rentals</h2></div><a routerLink="/rentals" class="btn">View rentals</a></header>
+  <div class="table-wrap" *ngIf="rentals?.content?.length; else recentEmpty">
+    <table><thead><tr><th>Rental</th><th>Client</th><th>Vehicle</th><th>Start date</th><th>End date</th><th>Status</th><th>Amount</th></tr></thead>
+      <tbody><tr *ngFor="let rental of latestRentals">
+        <td>#{{ rental.id }}</td><td>{{ clientNameFor(rental.clientId) }}</td><td>{{ vehicleNameFor(rental.vehiculeId) }}<div class="muted" *ngIf="vehicleFor(rental.vehiculeId) as vehicle">{{ vehicle.immatriculation }}</div></td>
+        <td>{{ rental.dateDebut | date:'mediumDate' }}</td><td>{{ rental.dateFinPrevue | date:'mediumDate' }}</td>
+        <td><span class="badge" [ngClass]="'badge-' + rental.statut">{{ rental.statut | lowercase }}</span></td>
+        <td>{{ rental.montantTotal | number:'1.0-2' }} TND</td>
+      </tr></tbody>
+    </table>
+  </div>
+  <ng-template #recentEmpty><div class="dashboard-empty">{{ rentals ? 'No rentals have been recorded yet.' : 'Recent rentals are unavailable.' }}</div></ng-template>
+</section>

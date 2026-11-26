@@ -1,0 +1,66 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "VehicleServiceApplication",
+      "request": "launch",
+      "mainClass": "com.driveeasy.vehicle.VehicleServiceApplication",
+      "projectName": "vehicule-service"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 1. Service Registry",
+      "request": "launch",
+      "command": "mvn -pl service-registry spring-boot:run",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 2. Config Server",
+      "request": "launch",
+      "command": "mvn -pl config-server spring-boot:run",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 3. Vehicle Service",
+      "request": "launch",
+      "command": "mvn -pl vehicule-service spring-boot:run",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 4. Client Service",
+      "request": "launch",
+      "command": "mvn -pl client-service spring-boot:run",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 5. Rental Service",
+      "request": "launch",
+      "command": "mvn -pl location-service spring-boot:run",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 6. API Gateway",
+      "request": "launch",
+      "command": "mvn -pl api-gateway spring-boot:run",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "DriveEasy: 7. Frontend",
+      "request": "launch",
+      "command": "npm start",
+      "cwd": "${workspaceFolder}/frontend",
+      "serverReadyAction": {
+        "pattern": "Local:\\s+(https?://localhost:\\d+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
+    }
+  ]
+}
